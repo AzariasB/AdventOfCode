@@ -4,16 +4,6 @@ import Helpers
 
 
 
--- STATE
-
-
-type alias State =
-    { timesIncreased : Int
-    , previousDepth : Int
-    }
-
-
-
 -- SOLUTION
 
 
@@ -26,13 +16,18 @@ part1 calories =
         |> String.fromInt
 
 
-
 maxSum : Int -> List Int -> Int
 maxSum current xs =
     case xs of
-        [] -> current
-        0::rest -> max current (maxSum 0 rest)
-        a::rest -> maxSum (current + a) rest
+        [] ->
+            current
+
+        0 :: rest ->
+            max current (maxSum 0 rest)
+
+        a :: rest ->
+            maxSum (current + a) rest
+
 
 part2 : List String -> String
 part2 calories =
@@ -42,19 +37,29 @@ part2 calories =
         |> topNSum 3
         |> String.fromInt
 
+
 split : Int -> List Int -> List Int
 split current xs =
     case xs of
-        [] -> [current]
-        0::rest -> current :: (split 0 rest)
-        a::rest -> split (current + a) rest
+        [] ->
+            [ current ]
+
+        0 :: rest ->
+            current :: split 0 rest
+
+        a :: rest ->
+            split (current + a) rest
 
 
 topNSum : Int -> List Int -> Int
-topNSum top sums = let
-                        sorted = List.reverse <| List.sort sums
-                    in
-                        List.sum <| List.take top sorted
+topNSum top sums =
+    let
+        sorted =
+            List.reverse <| List.sort sums
+    in
+    List.sum <| List.take top sorted
+
+
 
 -- RUN
 
