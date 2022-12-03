@@ -1,4 +1,4 @@
-module Day2 exposing (..)
+module Day2 exposing (part1, part2)
 
 import Dict exposing (Dict)
 import Helpers
