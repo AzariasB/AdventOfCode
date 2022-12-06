@@ -1,4 +1,4 @@
-module DayX exposing (part1, part2)
+module Day7 exposing (part1, part2)
 
 import Helpers
 
