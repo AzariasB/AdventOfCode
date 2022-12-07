@@ -1,10 +1,8 @@
 module Day7 exposing (part1, part2)
 
 import Helpers
-import List.Extra exposing (takeWhile)
-import Parser exposing ((|.), (|=), Parser, Step(..), end, int, loop, map, oneOf, spaces, succeed, symbol, variable)
-import ParserHelpers exposing (runOnList, string)
-import Set
+import Parser exposing ((|.), (|=), Parser, Step(..), end, int, loop, map, oneOf, spaces, succeed, symbol)
+import ParserHelpers exposing (string)
 
 
 
@@ -15,8 +13,8 @@ type alias FileData =
     { size : Int, name : String }
 
 
-type alias DirectoryData =
-    { name : String, files : List Tree }
+type Node
+    = Node { data : File, children : List Node }
 
 
 type File
@@ -29,22 +27,27 @@ type Command
     | ListContent (List File)
 
 
-type Tree
-    = DirNode DirectoryData
-    | FileNode FileData
+type NodeType
+    = FileType
+    | DirectoryType
 
 
-type FolderSize
-    = Valid Int
-    | Invalid (List Int)
+totalFreeSpace : Int
+totalFreeSpace =
+    70000000
+
+
+neededSpace : Int
+neededSpace =
+    30000000
 
 
 
 -- SOLUTION
 
 
-part1 : List String -> String
-part1 commands =
+toFileSystem : List String -> Node
+toFileSystem commands =
     let
         parseHistory str =
             case Parser.run historyParser str of
@@ -53,7 +56,7 @@ part1 commands =
 
                 Err err ->
                     let
-                        msg =
+                        _ =
                             Debug.log "error" err
                     in
                     Debug.todo "Failed to parse commands"
@@ -61,176 +64,168 @@ part1 commands =
     commands
         |> String.join "\n"
         |> parseHistory
-        |> commandsToTree []
-        |> Debug.log "tree is "
-        |> sizeFilter
-        |> Debug.log "size filer is "
-        |> (\size ->
-                case size of
-                    Valid v ->
-                        v
+        |> List.tail
+        |> Maybe.withDefault []
+        |> commandsToTree (Node { data = Directory "/", children = [] })
 
-                    Invalid v ->
-                        List.sum v
-           )
+
+part1 : List String -> String
+part1 commands =
+    commands
+        |> toFileSystem
+        |> sizeCounter
+        |> sizeFilter
         |> String.fromInt
 
 
 part2 : List String -> String
-part2 _ =
-    "TODO"
-
-
-commandsToTree : List Tree -> List Command -> List Tree
-commandsToTree node commands =
+part2 commands =
     let
-        ( trees, rest ) =
-            process node commands
+        folderSizes =
+            commands
+                |> toFileSystem
+                |> sizeCounter
+
+        ( _, usedSpace, _ ) =
+            folderSizes
+                |> List.head
+                |> Maybe.withDefault ( "", 0, DirectoryType )
+
+        availableSpace =
+            totalFreeSpace - usedSpace
+
+        missingSpace =
+            neededSpace - availableSpace
     in
-    case rest of
+    folderSizes
+        |> List.filterMap (isBigEnough missingSpace)
+        |> List.sort
+        |> List.head
+        |> Maybe.withDefault 0
+        |> String.fromInt
+
+
+isBigEnough : Int -> ( String, Int, NodeType ) -> Maybe Int
+isBigEnough min ( _, value, fileType ) =
+    if fileType == DirectoryType && value >= min then
+        Just value
+
+    else
+        Nothing
+
+
+sizeFilter : List ( String, Int, NodeType ) -> Int
+sizeFilter =
+    List.filterMap
+        (\( _, size, tp ) ->
+            if tp == DirectoryType && size <= 100000 then
+                Just size
+
+            else
+                Nothing
+        )
+        >> List.sum
+
+
+rawNode : Node -> { data : File, children : List Node }
+rawNode node =
+    case node of
+        Node content ->
+            content
+
+
+sizeCounter : Node -> List ( String, Int, NodeType )
+sizeCounter node =
+    let
+        { data, children } =
+            rawNode node
+    in
+    case data of
+        PlainFile f ->
+            List.singleton ( f.name, f.size, FileType )
+
+        Directory name ->
+            let
+                allChildren =
+                    List.map sizeCounter children |> List.concat
+
+                selfSize =
+                    List.filterMap
+                        (\( _, size, docType ) ->
+                            if docType == FileType then
+                                Just size
+
+                            else
+                                Nothing
+                        )
+                        allChildren
+                        |> List.sum
+            in
+            ( name, selfSize, DirectoryType ) :: allChildren
+
+
+commandsToTree : Node -> List Command -> Node
+commandsToTree parent commands =
+    let
+        ( updatedParent, otherCommands ) =
+            process parent commands
+    in
+    case otherCommands of
         [] ->
-            trees
+            updatedParent
 
         xs ->
-            commandsToTree trees xs
+            commandsToTree updatedParent xs
 
 
-process : List Tree -> List Command -> ( List Tree, List Command )
-process acc commands =
+process : Node -> List Command -> ( Node, List Command )
+process node commands =
     case commands of
         [] ->
-            ( acc, [] )
+            ( node, [] )
 
         c :: xs ->
             case c of
                 ChangeDirectory dir ->
                     if dir == ".." then
-                        ( acc, xs )
+                        ( node, xs )
 
                     else
                         let
+                            parent =
+                                rawNode node
+
+                            self =
+                                Node { data = Directory dir, children = [] }
+
                             ( subDir, rest ) =
-                                process [] xs
+                                process self xs
                         in
-                        ( DirNode { name = dir, files = subDir } :: acc, rest )
+                        process (Node { parent | children = subDir :: parent.children }) rest
 
                 ListContent content ->
                     let
+                        parent =
+                            rawNode node
+
                         files =
                             List.filterMap
-                                (\node ->
-                                    case node of
-                                        PlainFile data ->
-                                            Just <| FileNode data
-
-                                        _ ->
+                                (\file ->
+                                    case file of
+                                        Directory _ ->
                                             Nothing
+
+                                        fileData ->
+                                            Just <| Node { data = fileData, children = [] }
                                 )
                                 content
                     in
-                    process files xs
-
-
-sizeSum : FolderSize -> Int
-sizeSum size =
-    case size of
-        Valid val ->
-            val
-
-        Invalid val ->
-            List.sum val
-
-
-isInvalid : FolderSize -> Bool
-isInvalid size =
-    case size of
-        Invalid _ ->
-            True
-
-        _ ->
-            False
-
-
-sizeFilter : List Tree -> FolderSize
-sizeFilter xs =
-    case xs of
-        [] ->
-            Valid 0
-
-        total ->
-            let
-                foldersSize =
-                    Debug.log "folder size is" <|
-                        List.filterMap
-                            (\f ->
-                                case f of
-                                    DirNode dir ->
-                                        Just <| sizeFilter dir.files
-
-                                    _ ->
-                                        Nothing
-                            )
-                            total
-
-                validFolders =
-                    List.map
-                        (\f ->
-                            case f of
-                                Invalid res ->
-                                    res
-
-                                Valid value ->
-                                    [ value ]
-                        )
-                        foldersSize
-                        |> List.concat
-
-                hasInvalids =
-                    List.any isInvalid foldersSize
-            in
-            if hasInvalids then
-                Invalid validFolders
-
-            else
-                let
-                    filesSize =
-                        List.filterMap
-                            (\f ->
-                                case f of
-                                    FileNode file ->
-                                        Just file.size
-
-                                    _ ->
-                                        Nothing
-                            )
-                            total
-                            |> List.sum
-
-                    myTotalSize =
-                        filesSize
-                            + (List.map
-                                (\f ->
-                                    case f of
-                                        Valid v ->
-                                            v
-
-                                        _ ->
-                                            0
-                                )
-                                foldersSize
-                                |> List.sum
-                              )
-                in
-                if myTotalSize <= 100000 then
-                    Valid myTotalSize
-
-                else
-                    Invalid validFolders
+                    process (Node { parent | children = files ++ parent.children }) xs
 
 
 historyParser : Parser (List Command)
 historyParser =
-    loop [] commandParserHelper
+    loop [] commandParserHelper |. end
 
 
 commandParserHelper : List Command -> Parser (Step (List Command) (List Command))
