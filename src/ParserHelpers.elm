@@ -5,11 +5,13 @@ module ParserHelpers exposing
     , notSpace
     , oneOrMore
     , runOnList
+    , string
     , zeroOrMore
     )
 
 import Debug exposing (..)
 import Parser exposing (..)
+import Set
 
 
 type alias ParserResult a =
@@ -127,3 +129,8 @@ maybe parser =
 notSpace : Char -> Bool
 notSpace c =
     c /= ' '
+
+
+string : Parser String
+string =
+    zeroOrMore (\c -> notSpace c && c /= '\n')
