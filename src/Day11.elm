@@ -49,7 +49,6 @@ resolve worry cycles deconstructed =
         |> jungleParser worry
         |> Array.fromList
         |> simulateJungle cycles
-        --|> Debug.log "jungle is "
         |> Array.toList
         |> monkeyBusinessScore
         |> String.fromInt
@@ -63,6 +62,10 @@ part1 =
 part2 : List String -> String
 part2 =
     resolve 1 10000
+
+
+
+-- 13252386294 is too high
 
 
 monkeyBusinessScore : List Monkey -> Int
@@ -120,16 +123,25 @@ itemInspection items monkey jungle =
         x :: xs ->
             let
                 worryLevel =
-                    performOperation x monkey.operation // monkey.worryReliever
+                    if monkey.worryReliever == 1 then
+                        performOperation x monkey.operation |> modBy (commonFactor jungle)
+
+                    else
+                        performOperation x monkey.operation // monkey.worryReliever
 
                 modded =
-                    modBy monkey.divisibleTest worryLevel
+                    modBy monkey.divisibleTest worryLevel == 0
             in
-            if modded == 0 then
+            if modded then
                 passItem worryLevel monkey.testSuccessTarget jungle |> itemInspection xs monkey
 
             else
                 passItem worryLevel monkey.testFailureTarget jungle |> itemInspection xs monkey
+
+
+commonFactor : Array Monkey -> Int
+commonFactor =
+    Array.toList >> List.map (\x -> x.divisibleTest) >> List.product
 
 
 performOperation : Int -> Operation -> Int
