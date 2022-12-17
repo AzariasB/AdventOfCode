@@ -2,6 +2,7 @@ module Day9 exposing (part1, part2)
 
 import Helpers
 import List.Extra exposing (last, scanl)
+import Maths exposing (sign)
 import Parser exposing ((|.), (|=), Parser, end, int, oneOf, spaces, succeed, symbol)
 import ParserHelpers exposing (runOnList)
 import Set exposing (Set)
@@ -109,14 +110,14 @@ bringCloser ( xTail, yTail ) ( xHead, yHead ) =
 
         xSign =
             if abs xDiff >= 2 || abs yDiff >= 2 then
-                sign <| xDiff
+                sign xDiff
 
             else
                 0
 
         ySign =
             if abs yDiff >= 2 || abs xDiff >= 2 then
-                sign <| yHead - yTail
+                sign yHead - yTail
 
             else
                 0
@@ -152,18 +153,6 @@ moveParser =
                 ]
     in
     succeed Move |= directionParser |. spaces |= int |. end
-
-
-sign : Int -> Int
-sign x =
-    if x < 0 then
-        -1
-
-    else if x == 0 then
-        0
-
-    else
-        1
 
 
 
