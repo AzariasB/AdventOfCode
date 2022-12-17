@@ -32,25 +32,30 @@ type alias Path =
 -- SOLUTION
 
 
-part1 : List String -> String
-part1 map =
+resolve : (Matrix Location -> Int) -> List String -> String
+resolve solver map =
     map
         |> List.map (String.toList >> List.map toLocation)
         |> fromLists
         |> Maybe.withDefault Matrix.empty
-        |> shortestPath
+        |> solver
         |> String.fromInt
 
 
+part1 : List String -> String
+part1 =
+    resolve shortestPath
+
+
 part2 : List String -> String
-part2 _ =
-    "TODO"
+part2 =
+    resolve closestLower
 
 
-startPosition : Position -> Matrix Location -> Position
-startPosition ( x, y ) map =
+findLocation : Location -> Position -> Matrix Location -> Position
+findLocation search ( x, y ) map =
     if x >= Matrix.width map then
-        startPosition ( 0, y + 1 ) map
+        findLocation search ( 0, y + 1 ) map
 
     else if y >= Matrix.height map then
         ( -1, -1 )
@@ -60,24 +65,89 @@ startPosition ( x, y ) map =
             current =
                 getLocation ( x, y ) map
         in
-        case current of
-            Start ->
-                ( x, y )
+        if current == search then
+            ( x, y )
 
-            _ ->
-                startPosition ( x + 1, y ) map
+        else
+            findLocation search ( x + 1, y ) map
 
 
 shortestPath : Matrix Location -> Int
 shortestPath map =
     let
         start =
-            startPosition ( 0, 0 ) map
+            findLocation Start ( 0, 0 ) map
 
         search =
             [ { move = ( start, 0 ), steps = 0 } ]
     in
     studyMove search Set.empty map
+
+
+closestLower : Matrix Location -> Int
+closestLower map =
+    let
+        end =
+            findLocation End ( 0, 0 ) map
+
+        search =
+            [ { move = ( end, 0 ), steps = 0 } ]
+    in
+    reverseSearch search Set.empty map
+
+
+reverseSearch : List Path -> Set Move -> Matrix Location -> Int
+reverseSearch list history map =
+    case list of
+        [] ->
+            -1
+
+        path :: xs ->
+            if Set.member path.move history then
+                reverseSearch xs history map
+
+            else
+                let
+                    pos =
+                        Tuple.first path.move
+
+                    alt =
+                        Tuple.second path.move
+
+                    currentLocation =
+                        getLocation pos map
+
+                    updatedHistory =
+                        Set.insert path.move history
+                in
+                case currentLocation of
+                    Unreachable ->
+                        reverseSearch xs updatedHistory map
+
+                    Start ->
+                        path.steps
+
+                    End ->
+                        let
+                            nwChoices =
+                                neighbours path 25
+                        in
+                        reverseSearch (xs ++ nwChoices) updatedHistory map
+
+                    Step fromAlt ->
+                        if (alt - fromAlt) <= 1 then
+                            if fromAlt == 0 then
+                                path.steps
+
+                            else
+                                let
+                                    nwChoices =
+                                        neighbours path fromAlt
+                                in
+                                reverseSearch (xs ++ nwChoices) updatedHistory map
+
+                        else
+                            reverseSearch xs updatedHistory map
 
 
 studyMove : List Path -> Set Move -> Matrix Location -> Int
@@ -136,7 +206,7 @@ studyMove list history map =
 
 getLocation : Position -> Matrix Location -> Location
 getLocation ( x, y ) map =
-    Matrix.get x y map |> Maybe.withDefault Unreachable
+    Matrix.get (y + 1) (x + 1) map |> Maybe.withDefault Unreachable
 
 
 neighbours : Path -> Int -> List Path
