@@ -2,8 +2,8 @@ module Day10 exposing (part1, part2)
 
 import Helpers
 import List.Extra exposing (groupsOf, zip)
-import Parser exposing ((|.), (|=), Parser, end, int, oneOf, succeed, symbol)
-import ParserHelpers exposing (runOnList)
+import Parser exposing ((|.), (|=), Parser, end, oneOf, succeed, symbol)
+import ParserHelpers exposing (betterInt, runOnList)
 
 
 
@@ -139,16 +139,6 @@ parseOperation =
         , succeed Add |. symbol "addx " |= betterInt
         ]
         |. end
-
-
-betterInt : Parser Int
-betterInt =
-    oneOf
-        [ succeed negate
-            |. symbol "-"
-            |= int
-        , int
-        ]
 
 
 

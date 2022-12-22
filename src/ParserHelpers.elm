@@ -1,5 +1,7 @@
 module ParserHelpers exposing
     ( Hex
+    , basicString
+    , betterInt
     , hexParser
     , maybe
     , notSpace
@@ -11,7 +13,6 @@ module ParserHelpers exposing
 
 import Debug exposing (..)
 import Parser exposing (..)
-import Set
 
 
 type alias ParserResult a =
@@ -134,3 +135,18 @@ notSpace c =
 string : Parser String
 string =
     zeroOrMore (\c -> notSpace c && c /= '\n')
+
+
+basicString : Parser String
+basicString =
+    zeroOrMore (\c -> Char.isAlphaNum c)
+
+
+betterInt : Parser Int
+betterInt =
+    oneOf
+        [ succeed negate
+            |. symbol "-"
+            |= int
+        , int
+        ]

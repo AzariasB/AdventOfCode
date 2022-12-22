@@ -4,7 +4,6 @@ import Array exposing (Array)
 import Dict exposing (Dict)
 import Helpers
 import Maths exposing (sign)
-import Matrix exposing (Matrix)
 import Parser exposing ((|.), (|=), Parser, Step(..), end, int, loop, map, oneOf, succeed, symbol)
 import ParserHelpers exposing (runOnList)
 
@@ -51,37 +50,81 @@ part1 pipes =
 
         map =
             toMap rawPipes
-
-        _ =
-            prettyPrint map |> Debug.log ""
     in
-    runSimulation map (500 - xChange) 0 |> String.fromInt
+    runFixedSimulation map (500 - xChange) 0 |> String.fromInt
 
 
 part2 : List String -> String
 part2 pipes =
-    pipes |> runOnList structureParser |> (\_ -> "")
+    pipes
+        |> runOnList structureParser
+        |> toFreeSimulation
+        |> runFreeSimulation 1
+        |> String.fromInt
 
 
-runSimulation : FixedSimulation -> Int -> Int -> Int
-runSimulation sim xGen steps =
+runFixedSimulation : FixedSimulation -> Int -> Int -> Int
+runFixedSimulation sim xGen steps =
     let
         ( nwSim, stop ) =
-            simulationStep ( xGen, 0 ) sim
+            fixedSimulationStep ( xGen, 0 ) sim
     in
     if stop then
-        let
-            _ =
-                Debug.log (prettyPrint nwSim) 0
-        in
         steps
 
     else
-        runSimulation nwSim xGen (steps + 1)
+        runFixedSimulation nwSim xGen (steps + 1)
 
 
-simulationStep : Point -> FixedSimulation -> ( FixedSimulation, Bool )
-simulationStep current sim =
+runFreeSimulation : Int -> FreeSimulation -> Int
+runFreeSimulation step sim =
+    let
+        ( nwSim, stop ) =
+            freeSimulationStep ( 500, 0 ) sim
+    in
+    if stop then
+        step
+
+    else
+        runFreeSimulation (step + 1) nwSim
+
+
+freeSimulationStep : Point -> FreeSimulation -> ( FreeSimulation, Bool )
+freeSimulationStep current ({ floor, points } as sim) =
+    let
+        downPos =
+            down current
+    in
+    if isSpotFree downPos sim then
+        freeSimulationStep downPos sim
+
+    else
+        let
+            dlPos =
+                downLeft current
+        in
+        if isSpotFree dlPos sim then
+            freeSimulationStep dlPos sim
+
+        else
+            let
+                drPos =
+                    downRight current
+            in
+            if isSpotFree drPos sim then
+                freeSimulationStep drPos sim
+
+            else
+                ( { sim | points = Dict.insert current 2 points }, current == ( 500, 0 ) )
+
+
+isSpotFree : Point -> FreeSimulation -> Bool
+isSpotFree (( _, y ) as point) { points, floor } =
+    not (Dict.member point points) && y < floor
+
+
+fixedSimulationStep : Point -> FixedSimulation -> ( FixedSimulation, Bool )
+fixedSimulationStep current sim =
     let
         downPos =
             down current
@@ -95,7 +138,7 @@ simulationStep current sim =
             ( sim, True )
 
         Free ->
-            simulationStep downPos sim
+            fixedSimulationStep downPos sim
 
         Occupied ->
             -- Then we look on the left
@@ -111,7 +154,7 @@ simulationStep current sim =
                     ( sim, True )
 
                 Free ->
-                    simulationStep dl sim
+                    fixedSimulationStep dl sim
 
                 Occupied ->
                     -- And then on the right
@@ -127,7 +170,7 @@ simulationStep current sim =
                             ( sim, True )
 
                         Free ->
-                            simulationStep rl sim
+                            fixedSimulationStep rl sim
 
                         Occupied ->
                             ( addGrainOfSand current sim, False )
@@ -192,7 +235,7 @@ simplify structures =
 
 toFreeSimulation : List Structure -> FreeSimulation
 toFreeSimulation structs =
-    { floor = 0, points = Dict.empty }
+    toFreeSimulationHelper structs { floor = 0, points = Dict.empty }
 
 
 toFreeSimulationHelper : List Structure -> FreeSimulation -> FreeSimulation
@@ -202,14 +245,20 @@ toFreeSimulationHelper structs sim =
             sim
 
         x :: xs ->
-            sim
+            maskStructure x sim |> toFreeSimulationHelper xs
 
 
 maskStructure : Structure -> FreeSimulation -> FreeSimulation
-maskStructure xs sim =
-    case xs of
+maskStructure struct sim =
+    case struct of
         [] ->
             sim
+
+        a :: b :: xs ->
+            maskStructure (b :: xs) (maskLine a b sim)
+
+        x :: xs ->
+            maskStructure xs (maskLine x x sim)
 
 
 maskLine : Point -> Point -> FreeSimulation -> FreeSimulation
@@ -228,7 +277,7 @@ maskLine ( x, y ) ( tX, tY ) { floor, points } =
         nwSim
 
     else
-        maskLine ( x, y ) ( tX, tY ) nwSim
+        maskLine ( x + sign (tX - x), y + sign (tY - y) ) ( tX, tY ) nwSim
 
 
 toMap : List Structure -> FixedSimulation
@@ -303,32 +352,29 @@ pointParser =
 
 
 -- DEBUG
-
-
-prettyPrint : FixedSimulation -> String
-prettyPrint =
-    Array.map rowPrint >> Array.toList >> String.join "\n"
-
-
-rowPrint : Array Int -> String
-rowPrint =
-    Array.map simChar >> Array.toList >> String.fromList
-
-
-simChar : Int -> Char
-simChar x =
-    case x of
-        2 ->
-            '.'
-
-        1 ->
-            '#'
-
-        _ ->
-            ' '
-
-
-
+--prettyPrint : FixedSimulation -> String
+--prettyPrint =
+--    Array.map rowPrint >> Array.toList >> String.join "\n"
+--
+--
+--rowPrint : Array Int -> String
+--rowPrint =
+--    Array.map simChar >> Array.toList >> String.fromList
+--
+--
+--simChar : Int -> Char
+--simChar x =
+--    case x of
+--        2 ->
+--            '.'
+--
+--        1 ->
+--            '#'
+--
+--        _ ->
+--            ' '
+--
+--
 -- RUN
 
 
