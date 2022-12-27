@@ -31,9 +31,22 @@ part1 =
     resolve 2022
 
 
+
+-- cycles of 2737 h (10000 rounds)
+-- 1899 h (round 1200)
+-- 3257 h (round 2080)
+-- 3257 - 1899
+-- 10000 rounds : 15584 h
+-- (15584 - 1899) / 2737 = 5 cycles and start => 1760 rounds to to a cycle
+-- 1760 rounds =  2737 h
+-- 568181817 full cycles + 1200 start + 880 end
+-- (568181817 * 2737) + 3257 - 1
+-- 1555113636385
+
+
 part2 : List String -> String
 part2 =
-    resolve 2022
+    resolve 1000000000000
 
 
 runTetrisSimulation : Int -> Int -> Simulation -> List Char -> Int
