@@ -26,7 +26,6 @@ part1 : List String -> String
 part1 sensors =
     sensors
         |> runOnList sensorParser
-        --|> Debug.log "sensors"
         |> occupiedSpots
         |> String.fromInt
 
@@ -100,22 +99,16 @@ yDistance ( ( _, fy ), _ ) target =
 coveredRange : Sensor -> Int -> Set Int
 coveredRange (( ( fx, _ ), _ ) as sensor) baseLine =
     let
-        --_ =
-        --    Debug.log "with sensor" sensor
         range =
             sensorRange sensor
 
-        --|> Debug.log "range"
-        --
         distance =
             yDistance sensor baseLine
 
-        --|> Debug.log "distance from baseline"
         remains =
             range
                 - distance
 
-        --|> Debug.log "spread on baseline"
         covering =
             if remains > 0 then
                 let
@@ -129,10 +122,6 @@ coveredRange (( ( fx, _ ), _ ) as sensor) baseLine =
 
             else
                 []
-
-        --
-        --_ =
-        --    Debug.log "covering" covering
     in
     Set.fromList covering
 
