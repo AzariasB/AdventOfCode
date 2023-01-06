@@ -2,7 +2,7 @@ module Day15 exposing (part1, part2)
 
 import Helpers
 import Parser exposing ((|.), (|=), Parser, int, succeed, symbol)
-import ParserHelpers exposing (betterInt, runOnList)
+import ParserHelpers exposing (betterInt, orElse, runOnList)
 import Set exposing (Set)
 
 
@@ -31,8 +31,59 @@ part1 sensors =
 
 
 part2 : List String -> String
-part2 _ =
-    "TODO"
+part2 sensors =
+    sensors
+        |> runOnList sensorParser
+        |> findFreeSpot
+        |> toTuningFrequency
+        |> String.fromInt
+
+
+toTuningFrequency : Maybe Position -> Int
+toTuningFrequency pos =
+    case pos of
+        Nothing ->
+            Debug.log "Failed to find a free position" 0
+
+        Just ( x, y ) ->
+            x * 4000000 + y
+
+
+findFreeSpot : List Sensor -> Maybe Position
+findFreeSpot xs =
+    List.foldl (orElse << lookAroundSensor xs) Nothing xs
+
+
+lookAroundSensor : List Sensor -> Sensor -> Maybe Position
+lookAroundSensor sensors (( origin, _ ) as sensor) =
+    let
+        distance =
+            sensorRange sensor
+    in
+    lookAroundSensorHelper sensors ( combine origin ( distance + 1, 0 ), ( -1, -1 ) ) distance
+        |> orElse (lookAroundSensorHelper sensors ( combine origin ( distance + 1, 0 ), ( -1, 1 ) ) distance)
+        |> orElse (lookAroundSensorHelper sensors ( combine origin ( -distance - 1, 0 ), ( 1, -1 ) ) distance)
+        |> orElse (lookAroundSensorHelper sensors ( combine origin ( -distance - 1, 0 ), ( 1, 1 ) ) distance)
+
+
+lookAroundSensorHelper : List Sensor -> Sensor -> Int -> Maybe Position
+lookAroundSensorHelper sensors ( current, increase ) steps =
+    if steps <= 0 then
+        Nothing
+
+    else
+        let
+            taken =
+                List.any (isCoveredBySensor current) sensors
+
+            next =
+                combine current increase
+        in
+        if isValidPosition current && not taken then
+            Just current
+
+        else
+            lookAroundSensorHelper sensors ( next, increase ) (steps - 1)
 
 
 occupiedSpots : List Sensor -> Int
@@ -86,6 +137,16 @@ occupiedSpotsHelper occupied baseLine sensors =
             occupiedSpotsHelper nwCover baseLine xs
 
 
+isCoveredBySensor : Position -> Sensor -> Bool
+isCoveredBySensor pos (( origin, _ ) as sensor) =
+    sensorRange sensor >= sensorRange ( pos, origin )
+
+
+isValidPosition : Position -> Bool
+isValidPosition ( x, y ) =
+    x >= 0 && x <= 4000000 && y >= 0 && y <= 4000000
+
+
 sensorRange : Sensor -> Int
 sensorRange ( ( fx, fy ), ( tx, ty ) ) =
     abs (fx - tx) + abs (fy - ty)
@@ -94,6 +155,11 @@ sensorRange ( ( fx, fy ), ( tx, ty ) ) =
 yDistance : Sensor -> Int -> Int
 yDistance ( ( _, fy ), _ ) target =
     abs (target - fy)
+
+
+combine : Position -> Position -> Position
+combine ( x, y ) ( ix, iy ) =
+    ( x + ix, y + iy )
 
 
 coveredRange : Sensor -> Int -> Set Int

@@ -1,11 +1,10 @@
 module ParserHelpers exposing
-    ( Hex
-    , basicString
+    ( basicString
     , betterInt
-    , hexParser
     , maybe
     , notSpace
     , oneOrMore
+    , orElse
     , runOnList
     , string
     , zeroOrMore
@@ -50,26 +49,6 @@ withoutErrorsHelp items parserResults =
                             err |> log "!!! ERROR !!!"
                     in
                     withoutErrorsHelp items remainingParserResults
-
-
-type alias Hex =
-    String
-
-
-{-| Parse a hex string.
-hairColorParser : Parser Field
-hairColorParser =
-succeed HairColor
-|. symbol "hcl:"
-|= maybe hex
-|. zeroOrMore notSpace
--}
-hexParser : Parser Hex
-hexParser =
-    succeed (\s -> "#" ++ s)
-        |. symbol "#"
-        |= oneOrMore "hex" Char.isHexDigit
-        |. zeroOrMore notSpace
 
 
 {-| parse zeroOrMore characters
@@ -150,3 +129,13 @@ betterInt =
             |= int
         , int
         ]
+
+
+orElse : Maybe a -> Maybe a -> Maybe a
+orElse x y =
+    case y of
+        Nothing ->
+            x
+
+        jst ->
+            jst

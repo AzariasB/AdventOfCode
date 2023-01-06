@@ -351,30 +351,6 @@ pointParser =
 
 
 
--- DEBUG
---prettyPrint : FixedSimulation -> String
---prettyPrint =
---    Array.map rowPrint >> Array.toList >> String.join "\n"
---
---
---rowPrint : Array Int -> String
---rowPrint =
---    Array.map simChar >> Array.toList >> String.fromList
---
---
---simChar : Int -> Char
---simChar x =
---    case x of
---        2 ->
---            '.'
---
---        1 ->
---            '#'
---
---        _ ->
---            ' '
---
---
 -- RUN
 
 
