@@ -1,13 +1,5 @@
-# Advent of Code 2022
+# Solutions of the Advent of code
 
-Advent of Code 2022 in Elm Lang.
+[2022 - Elm](./2022/)
 
-## Running
-
-Note: The day to run is hard-coded in Makefile.
-```
-make
-```
-
-
-Elm template inspired by [ryanolsonx/aocelm2021](https://github.com/ryanolsonx/aocelm2021)
+[2023 - Rust](./2023/)
