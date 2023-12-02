@@ -1,5 +1,5 @@
-use std::cmp::max;
 use advent_of_code::parsers::lines;
+use std::cmp::max;
 advent_of_code::solution!(2);
 
 const MAX_REDS: u32 = 12;
@@ -39,26 +39,35 @@ impl Game {
     }
 
     pub fn power(&self) -> u32 {
-        let max_set = self.sets.iter().fold(GameSet::default(), |prev, curr| { prev.maximize(curr) });
+        let max_set = self
+            .sets
+            .iter()
+            .fold(GameSet::default(), |prev, curr| prev.maximize(curr));
         max_set.reds * max_set.greens * max_set.blue
     }
 }
 
 fn parse_game_set(input: &str) -> Vec<GameSet> {
-    input.split(";").map(|s| {
-        let mut set = GameSet::default();
-        s.split(", ").for_each(|slice| {
-            let (num, color) = slice.trim().split_once(' ').expect(format!("Failed to parse game set {}", slice).as_str());
-            let count = num.parse::<u32>().expect("Unable to parse cube count");
-            match color {
-                "red" => { set.reds += count }
-                "blue" => { set.blue += count }
-                "green" => { set.greens += count }
-                _ => panic!("Unknown color {}", color)
-            }
-        });
-        set
-    }).collect()
+    input
+        .split(';')
+        .map(|s| {
+            let mut set = GameSet::default();
+            s.split(", ").for_each(|slice| {
+                let (num, color) = slice
+                    .trim()
+                    .split_once(' ')
+                    .unwrap_or_else(|| panic!("Failed to parse game set {}", slice));
+                let count = num.parse::<u32>().expect("Unable to parse cube count");
+                match color {
+                    "red" => set.reds += count,
+                    "blue" => set.blue += count,
+                    "green" => set.greens += count,
+                    _ => panic!("Unknown color {}", color),
+                }
+            });
+            set
+        })
+        .collect()
 }
 
 fn parse_game(input: &str) -> Game {
@@ -66,22 +75,25 @@ fn parse_game(input: &str) -> Game {
     let game_id = splited.next().expect("Game id not found");
     let game_sets = splited.next().expect("Game data not found");
     Game {
-        id: game_id[5..].parse::<u32>().expect(format!("Invalid game id {}", game_id).as_str()),
+        id: game_id[5..]
+            .parse::<u32>()
+            .unwrap_or_else(|_| panic!("Invalid game id {}", game_id)),
         sets: parse_game_set(game_sets),
     }
 }
 
-
 pub fn part_one(input: &str) -> Option<u32> {
     Some(
-        lines(input).map(parse_game).filter(Game::is_valid).map(|g| g.id).sum()
+        lines(input)
+            .map(parse_game)
+            .filter(Game::is_valid)
+            .map(|g| g.id)
+            .sum(),
     )
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    Some(
-        lines(input).map(parse_game).map(|v| v.power()).sum()
-    )
+    Some(lines(input).map(parse_game).map(|v| v.power()).sum())
 }
 
 #[cfg(test)]

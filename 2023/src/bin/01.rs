@@ -30,8 +30,8 @@ fn normalize_digits(input: &str) -> String {
         ("eight", "e8t"),
         ("nine", "n9e"),
     ]
-        .iter()
-        .fold(input.to_string(), |acc, (b, a)| acc.replace(b, a))
+    .iter()
+    .fold(input.to_string(), |acc, (b, a)| acc.replace(b, a))
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
