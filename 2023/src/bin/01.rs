@@ -30,8 +30,8 @@ fn normalize_digits(input: &str) -> String {
         ("eight", "e8t"),
         ("nine", "n9e"),
     ]
-    .iter()
-    .fold(input.to_string(), |acc, (b, a)| acc.replace(b, a))
+        .iter()
+        .fold(input.to_string(), |acc, (b, a)| acc.replace(b, a))
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -48,13 +48,13 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let result = part_one(&advent_of_code::template::read_file("inputs", DAY));
+        assert_eq!(result, Some(54644));
     }
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let result = part_two(&advent_of_code::template::read_file("inputs", DAY));
+        assert_eq!(result, Some(53348));
     }
 }
