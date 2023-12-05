@@ -30,7 +30,6 @@ impl Card {
     }
 }
 
-// 964337598464 too high
 pub fn part_one(input: &str) -> Option<u32> {
     Some(
         lines(input)
@@ -48,7 +47,6 @@ pub fn part_one(input: &str) -> Option<u32> {
     )
 }
 
-// 1032 too low
 pub fn part_two(input: &str) -> Option<u32> {
     let lns = lines(input).collect_vec();
     let mut mult = vec![1_u32; lns.len()];
