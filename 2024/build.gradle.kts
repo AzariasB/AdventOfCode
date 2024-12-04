@@ -17,6 +17,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation(gradleApi())
+    implementation("com.google.guava:guava:33.3.1-jre")
 }
 
 kotlin {
@@ -28,12 +29,12 @@ tasks.test {
 }
 
 tasks.register<Download>("download") {
-    day = (properties["day"] as String).toIntOrNull() ?: LocalDate.now().dayOfMonth
+    day = (properties["day"] as String?)?.toIntOrNull() ?: LocalDate.now().dayOfMonth
     sessionCookie = System.getenv("ADVENT_OF_CODE_SESSION")
 }
 
 tasks.register<Scaffold>("scaffold") {
     dependsOn("download")
-    day = (properties["day"] as String).toIntOrNull() ?: LocalDate.now().dayOfMonth
+    day = (properties["day"] as String?)?.toIntOrNull() ?: LocalDate.now().dayOfMonth
 
 }

@@ -32,7 +32,7 @@ class Day{0} {
 import eu.azariasb.adventofocde.days.day{0}.Day{0}
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-
+import kotlin.time.measureTimedValue
 
 class TestDay{0} {
 
@@ -42,14 +42,20 @@ class TestDay{0} {
 
     @Test
     fun testSolve1() {
-        val res = instance.solve1(puzzle)
+        val (res, timeTaken) = measureTimedValue {
+            instance.solve1(puzzle)
+        }
         assertEquals("", res)
+        println("Part 1 - Time taken: ${'$'}timeTaken")
     }
 
     @Test
     fun testSolve2() {
-        val res = instance.solve2(puzzle)
+        val (res, timeTaken) = measureTimedValue {
+            instance.solve2(puzzle)
+        }
         assertEquals("", res)
+        println("Part 2 - Time taken: ${'$'}timeTaken")
     }
 }
 """

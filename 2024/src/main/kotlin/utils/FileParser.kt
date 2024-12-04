@@ -6,7 +6,7 @@ object FileParser {
     fun fileFromResources(day: Int): File {
         return File(
             javaClass.classLoader.getResource(
-                "$day.txt"
+                "${day.toString().padStart(2, '0')}.txt"
             )?.toURI()
                 ?: error("Input for day $day not found!")
         )
