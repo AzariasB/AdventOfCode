@@ -23,4 +23,5 @@ object Maths {
 
         return maxOf(a, b)
     }
+
 }
