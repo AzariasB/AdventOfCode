@@ -18,6 +18,7 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation(gradleApi())
     implementation("com.google.guava:guava:33.3.1-jre")
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.9.0")
 }
 
 kotlin {

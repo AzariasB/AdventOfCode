@@ -1,18 +1,19 @@
 import eu.azariasb.adventofocde.utils.readFile
-import eu.azariasb.adventofocde.days.day2.Day2
+import eu.azariasb.adventofocde.days.day5.Day5
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.time.measureTimedValue
 
-class TestDay2 {
+class TestDay5 {
 
-    private val instance = Day2(readFile(2))
+    private val instance = Day5(readFile(5))
+
     @Test
     fun testSolve1() {
         val (res, timeTaken) = measureTimedValue {
             instance.solve1()
         }
-        assertEquals("230", res)
+        assertEquals("4790", res)
         println("Part 1 - Time taken: $timeTaken")
     }
 
@@ -21,7 +22,7 @@ class TestDay2 {
         val (res, timeTaken) = measureTimedValue {
             instance.solve2()
         }
-        assertEquals("301", res)
+        assertEquals("6319", res)
         println("Part 2 - Time taken: $timeTaken")
     }
 }

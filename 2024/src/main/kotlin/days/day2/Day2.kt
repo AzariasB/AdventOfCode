@@ -3,10 +3,11 @@ package eu.azariasb.adventofocde.days.day2
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
-class Day2 {
+class Day2(puzzle: String) {
 
+    private val input = puzzle.lines()
 
-    fun solve1(input: List<String>): String {
+    fun solve1(): String {
         return input.count { vals -> isSafe(vals.split(' ').map(String::toInt)) }.toString()
     }
 
@@ -34,7 +35,7 @@ class Day2 {
         return true
     }
 
-    fun solve2(input: List<String>): String {
+    fun solve2(): String {
         return input.count { vals -> isSafeWithDampener(vals.split(' ').map(String::toInt)) }.toString()
     }
 

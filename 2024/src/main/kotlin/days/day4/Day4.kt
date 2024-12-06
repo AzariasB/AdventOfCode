@@ -1,7 +1,10 @@
 package eu.azariasb.adventofocde.days.day4
 
 
-class Day4 {
+class Day4(puzzle: String) {
+
+    private val input = puzzle.lines()
+    private val puzzleLength = input[0].length
 
     /**
      * Using regex for this problem is probably not the most optimized way
@@ -9,10 +12,9 @@ class Day4 {
      * to find the patterns we're looking for
      * But this would take much more time and code, so ... no
      */
-    fun solve1(input: List<String>): String {
-        val equalLength = input[0].length
-        val positiveLength = equalLength + 1
-        val negativeLength = equalLength - 1
+    fun solve1(): String {
+        val positiveLength = puzzleLength + 1
+        val negativeLength = puzzleLength - 1
 
         val test = { count: Int ->
             val vChars = "[XMAS\\n]{$count}"
@@ -22,7 +24,7 @@ class Day4 {
         val patterns = listOf(
             "(?=SAMX)",
             "(?=XMAS)",
-            test(equalLength),
+            test(puzzleLength),
             test(positiveLength),
             test(negativeLength),
         )
@@ -36,11 +38,9 @@ class Day4 {
      * Using regexp is a luxury and isn't the fastest way to do it
      * But the problem is still solved in under a second. So that's find by me
      */
-    fun solve2(input: List<String>): String {
-        val equalLength = input[0].length
-
+    fun solve2(): String {
         val test = { order: Array<Char> ->
-            "(?=${order[0]}.${order[1]}[XMAS\\n]{${equalLength - 1}}A[XMAS\\n]{${equalLength - 1}}${order[2]}.${order[3]})"
+            "(?=${order[0]}.${order[1]}[XMAS\\n]{${puzzleLength - 1}}A[XMAS\\n]{${puzzleLength - 1}}${order[2]}.${order[3]})"
         }
 
         val patterns = listOf(

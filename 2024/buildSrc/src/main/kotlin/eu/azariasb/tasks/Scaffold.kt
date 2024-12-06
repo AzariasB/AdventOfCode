@@ -13,14 +13,14 @@ abstract class Scaffold : DefaultTask() {
     companion object {
         const val CLASS_TEMPLATE = """package eu.azariasb.adventofocde.days.day{0}
 
-class Day{0} {
+class Day{0}(input: String) {
 
-    fun solve1(input: List<String>): String {
+    fun solve1(): String {
     
         return ""
     }
     
-    fun solve2(input: List<String>): String {
+    fun solve2(): String {
 
         return ""
     }
@@ -36,14 +36,13 @@ import kotlin.time.measureTimedValue
 
 class TestDay{0} {
 
-    private val instance = Day{0}()
+    private val instance = Day{0}(readFile({0}))
 
-    private val puzzle = readFile({0})
 
     @Test
     fun testSolve1() {
         val (res, timeTaken) = measureTimedValue {
-            instance.solve1(puzzle)
+            instance.solve1()
         }
         assertEquals("", res)
         println("Part 1 - Time taken: ${'$'}timeTaken")
@@ -52,7 +51,7 @@ class TestDay{0} {
     @Test
     fun testSolve2() {
         val (res, timeTaken) = measureTimedValue {
-            instance.solve2(puzzle)
+            instance.solve2()
         }
         assertEquals("", res)
         println("Part 2 - Time taken: ${'$'}timeTaken")

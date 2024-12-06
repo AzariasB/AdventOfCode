@@ -6,14 +6,12 @@ import kotlin.time.measureTimedValue
 
 class TestDay4 {
 
-    private val instance = Day4()
-
-    private val puzzle = readFile(4)
+    private val instance = Day4(readFile(4))
 
     @Test
     fun testSolve1() {
         val (res, timeTaken) = measureTimedValue {
-            instance.solve1(puzzle)
+            instance.solve1()
         }
         assertEquals("2543", res)
         println("Part 1 - Time taken: $timeTaken")
@@ -22,7 +20,7 @@ class TestDay4 {
     @Test
     fun testSolve2() {
         val (res, timeTaken) = measureTimedValue {
-            instance.solve2(puzzle)
+            instance.solve2()
         }
         assertEquals("1930", res)
         println("Part 2 - Time taken: $timeTaken")

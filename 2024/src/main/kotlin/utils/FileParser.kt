@@ -13,6 +13,6 @@ object FileParser {
     }
 }
 
-fun readFile(day: Int): List<String> {
-    return FileParser.fileFromResources(day).readLines()
+fun readFile(day: Int): String {
+    return FileParser.fileFromResources(day).readText().trim()
 }
