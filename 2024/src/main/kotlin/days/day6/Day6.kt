@@ -1,9 +1,5 @@
 package eu.azariasb.adventofocde.days.day6
 
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.runBlocking
 import utils.Point
 
 class Day6(input: String) {
@@ -21,9 +17,9 @@ class Day6(input: String) {
 
     fun solve1() = first.size.toString()
 
-    fun solve2() = runBlocking {
+    fun solve2(): String {
         val visited = mutableSetOf<Pair<Point, Point>>()
-        first.asFlow().drop(1).count { (x, y) ->
+        return first.drop(1).count { (x, y) ->
             val original = grid[y]
             visited.clear()
             mGrid[y] = StringBuilder(original).apply { set(x, '#') }.toString()
