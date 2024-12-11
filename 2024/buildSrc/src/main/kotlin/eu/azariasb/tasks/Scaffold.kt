@@ -5,6 +5,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
+const val DOL = '$'
+
 abstract class Scaffold : DefaultTask() {
 
     @get:Input
@@ -15,12 +17,12 @@ abstract class Scaffold : DefaultTask() {
 
 class Day{0}(input: String) {
 
-    fun solve1(): String {
+    fun solve1(): Any {
     
         return ""
     }
     
-    fun solve2(): String {
+    fun solve2(): Any {
 
         return ""
     }
@@ -44,8 +46,8 @@ class TestDay{0} {
         val (res, timeTaken) = measureTimedValue {
             instance.solve1()
         }
-        assertEquals("", res)
-        println("Part 1 - Time taken: ${'$'}timeTaken")
+        assertEquals("", "${DOL}res")
+        println("Part 1 - Time taken: ${DOL}timeTaken")
     }
 
     @Test
@@ -53,7 +55,7 @@ class TestDay{0} {
         val (res, timeTaken) = measureTimedValue {
             instance.solve2()
         }
-        assertEquals("", res)
+        assertEquals("", "${DOL}res")
         println("Part 2 - Time taken: ${'$'}timeTaken")
     }
 }
