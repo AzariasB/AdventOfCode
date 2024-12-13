@@ -7,6 +7,8 @@ data class Point(val x: Int, val y: Int) {
         val SOUTH = Point(0, 1)
         val EAST = Point(1, 0)
         val WEST = Point(-1, 0)
+
+        val DIRECTIONS = listOf(NORTH, SOUTH, EAST, WEST)
     }
 
     fun right() = this + EAST
