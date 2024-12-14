@@ -22,11 +22,14 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(22)
+    jvmToolchain(21)
 }
 
 tasks.test {
     useJUnitPlatform()
+    testLogging {
+        showStandardStreams = true
+    }
 }
 
 tasks.register<Download>("download") {

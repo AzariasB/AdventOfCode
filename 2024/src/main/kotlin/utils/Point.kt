@@ -18,6 +18,9 @@ data class Point(val x: Int, val y: Int) {
 
     operator fun plus(that: Point) = Point(x + that.x, y + that.y)
     operator fun minus(that: Point) = Point(x - that.x, y - that.y)
+    operator fun times(that: Int) = Point(x * that, y * that)
+    operator fun div(that: Int) = Point(x / that, y / that)
+    operator fun rem(that: Point) = Point(x % that.x, y % that.y)
 
     fun neighbors(): Set<Point> = setOf(right(), left(), down(), up())
 }
