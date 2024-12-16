@@ -23,3 +23,5 @@ fun List<String>.toGrid() = this
         }
     }
     .associate { it }
+
+fun clearPrint(data: Any) = println("\u001b[H\u001b[2J$data")
