@@ -16,6 +16,8 @@ data class Point(val x: Int, val y: Int) {
     fun down() = this + SOUTH
     fun up() = this + NORTH
 
+    fun isOppositeOf(other: Point): Boolean = this.x == -other.x && this.y == -other.y
+
     operator fun plus(that: Point) = Point(x + that.x, y + that.y)
     operator fun minus(that: Point) = Point(x - that.x, y - that.y)
     operator fun times(that: Int) = Point(x * that, y * that)
