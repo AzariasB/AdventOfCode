@@ -6,9 +6,9 @@ object Dijkstra {
         target: R,
         getValue: (T) -> R,
         getNeighbors: (T) -> Collection<T>
-    ): TargetResult<T> {
+    ): TargetResult<T>? {
         djikstra(start, target, getValue, getNeighbors) { targetT, _, predecessors ->
-            return TargetResult(getPath(predecessors, targetT!!))
+            return if(targetT == null) null else TargetResult(getPath(predecessors, targetT))
         }
 
         error("Something went wrong")
