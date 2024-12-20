@@ -1,5 +1,7 @@
 package utils
 
+import kotlin.math.abs
+
 data class Point(val x: Int, val y: Int) {
 
     companion object {
@@ -25,4 +27,6 @@ data class Point(val x: Int, val y: Int) {
     operator fun rem(that: Point) = Point(x % that.x, y % that.y)
 
     fun neighbors(): Set<Point> = setOf(right(), left(), down(), up())
+
+    fun manhatanDistance(other: Point) = abs(other.x - x) + abs(other.y - y)
 }
