@@ -6,6 +6,7 @@ import kotlin.math.absoluteValue
 class Day21(input: String) {
 
     private val codes = input.lines()
+    private val cache = mutableMapOf<Pair<String, Int>, Long>()
 
     private val digiCode = mapOf(
         '7' to Point(0, 0),
@@ -29,57 +30,73 @@ class Day21(input: String) {
         '>' to Point(2, 1),
     )
 
-    private fun moves(from: Point, to: Point, reverse: Boolean = false): String {
-        val yDist = to.y - from.y
-        val xDist = to.x - from.x
-        val yMove = (if (yDist > 0) "v" else "^").repeat(yDist.absoluteValue)
-        val xMove = (if (xDist > 0) ">" else "<").repeat(xDist.absoluteValue)
-        return if(yDist < 0 == reverse) {
-           "$xMove${yMove}A"
-        } else {
-           "$yMove${xMove}A"
-        }
-    }
-
-    fun solve1(): Any {
-        return codes.sumOf {
-            var current = digiCode['A']!!
-            var robot1 = directions['A']!!
-            var robot2 = robot1
-            val myMoves = StringBuilder()
-            it.map { d ->
-                val target = digiCode[d]!!
-                val digiMove = moves(current, target)
-                println("Moves in digicode is $digiMove")
-                digiMove.map { r1 ->
-                    val r1t = directions[r1]!!
-                    val r1move = moves(robot1, r1t, true)
-                    println("Moves for robot1 is $r1move")
-                    r1move.map { r2 ->
-                        val r2t = directions[r2]!!
-                        val r2move = moves(robot2, r2t, true)
-                        println("Moves for robot2 is $r2move")
-                        myMoves.append(r2move)
-                        robot2 = r2t
-                    }
-                    robot1 = r1t
+    private fun digiMoves(from: Point, to: Point): List<String> {
+        return buildList {
+            val yDist = to.y - from.y
+            val xDist = to.x - from.x
+            val yMove = (if (yDist > 0) "v" else "^").repeat(yDist.absoluteValue)
+            val xMove = (if (xDist > 0) ">" else "<").repeat(xDist.absoluteValue)
+            if (xDist == 0 || yDist == 0) {
+                add("$xMove${yMove}A")
+            } else {
+                if (to.y == 3 && from.y < 3 && from.x == 0) {
+                    add("$xMove${yMove}A")
+                } else if (from.y == 3 && to.y < 3 && to.x == 0) {
+                    add("$yMove${xMove}A")
+                } else {
+                    add("$yMove${xMove}A")
+                    add("$xMove${yMove}A")
                 }
-                current = target
             }
-            println(myMoves.toString())
-            myMoves.length * it.dropLast(1).toInt()
         }
-
     }
 
-    fun solve2(): Any {
-
-        return ""
+    private fun numPadMoves(from: Point, to: Point): List<String> {
+        return buildList {
+            val yDist = to.y - from.y
+            val xDist = to.x - from.x
+            val yMove = (if (yDist > 0) "v" else "^").repeat(yDist.absoluteValue)
+            val xMove = (if (xDist > 0) ">" else "<").repeat(xDist.absoluteValue)
+            if (xDist == 0 || yDist == 0) {
+                add("$xMove${yMove}A")
+            } else {
+                if (to.y == 0 && from == Point(0, 1)) {
+                    add("$xMove${yMove}A")
+                } else if (from.y == 0 && to == Point(0, 1)) {
+                    add("$yMove${xMove}A")
+                } else {
+                    add("$yMove${xMove}A")
+                    add("$xMove${yMove}A")
+                }
+            }
+        }
     }
 
+    private fun bestDigiMove(sequence: String, depth: Int): Long {
+        if (depth == 0) return sequence.length.toLong()
+        val key = sequence to depth
+        return cache[key] ?: kotlin.run {
+            var rPos = directions['A']!!
+            sequence.sumOf { c ->
+                val dest = directions[c]!!
+                numPadMoves(rPos, dest).minOf { sub ->
+                    bestDigiMove(sub, depth - 1)
+                }.also { rPos = dest }
+            }.also { cache[key] = it }
+        }
+    }
+
+    private fun solve(depth: Int): Long = codes.sumOf {
+        var current = digiCode['A']!!
+        it.sumOf { d ->
+            val target = digiCode[d]!!
+            digiMoves(current, target).minOf { path ->
+                bestDigiMove(path, depth)
+            }.also { current = target }
+        } * it.dropLast(1).toInt()
+    }
+
+    fun solve1() = solve(2)
+
+    fun solve2() = solve(25)
 }
-
-/*
-v<<A>>^AAv<A<A>>^AAvAA<^A>Av<A>^AA<A>Av<A<A>>^
-<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^
- */

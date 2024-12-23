@@ -14,7 +14,7 @@ class TestDay21 {
         val (res, timeTaken) = measureTimedValue {
             instance.solve1()
         }
-        assertEquals("", "$res")
+        assertEquals("134120", "$res")
         println("Part 1 - Time taken: $timeTaken")
     }
 
@@ -23,7 +23,7 @@ class TestDay21 {
         val (res, timeTaken) = measureTimedValue {
             instance.solve2()
         }
-        assertEquals("", "$res")
+        assertEquals("167389793580400", "$res")
         println("Part 2 - Time taken: $timeTaken")
     }
 }
