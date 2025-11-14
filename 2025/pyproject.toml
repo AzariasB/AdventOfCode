@@ -1,0 +1,11 @@
+[project]
+name = "advent-of-code"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "html-to-markdown>=2.7.2",
+    "requests>=2.32.5",
+    "typer>=0.20.0",
+]
