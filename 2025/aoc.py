@@ -13,11 +13,10 @@ Day = Annotated[int, typer.Argument(default_factory=lambda: datetime.date.today(
 
 @app.command(short_help="Prepares the project to write the code and run the tests locally")
 def scaffold(day: Day):
-    print(day)
     setup_day(day)
 
 @app.command(short_help="Run the tests for the given day, or current day if not given")
-def run(day: int = Day):
+def run(day: Day):
     run_tests(day)
 
 if __name__ == '__main__':

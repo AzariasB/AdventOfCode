@@ -2,14 +2,12 @@ import os
 import re
 from pathlib import Path
 
-__all__ = ["setup_day"]
+__all__ = ["setup_day", "test_file_path", "instruction_file_path", "code_file_path"]
 
 import html_to_markdown
 import requests
 
-SCAFFOLD = """
-
-from advent_of_code.infra import should_be
+SCAFFOLD = """from advent_of_code.infra import should_be
 
 @should_be(0)
 def part1(data: str) -> int:
@@ -25,7 +23,7 @@ YEAR = 2025
 MAIN_REG = re.compile(r"<main>([\w\W]+)</main>")
 
 def _scaffold(day: int):
-    path = Path(__file__).parent / ".." / "days" / f"day{day:02}.py"
+    path = code_file_path(day)
     if path.exists():
         print("code file already exists. Skipping file creation")
         return
@@ -45,13 +43,12 @@ def _download_instructions(day: int):
     content = match.group(1)
     converted = html_to_markdown.convert_to_markdown(content)
 
-    path = Path(__file__).parent / ".." / ".." / "puzzles" / f"day{day:02}.md"
-    path.write_text(converted)
+    instruction_file_path(day).write_text(converted)
     print("Finished downloading instructions")
 
 
 def _download_input(day: int):
-    path = Path(__file__).parent / ".." / ".." / "tests" / f"day{day:02}.txt"
+    path = test_file_path(day)
 
     if path.exists():
         print("puzzle input already exists, skipping")
@@ -67,6 +64,14 @@ def _download_input(day: int):
     path.write_text(puzzle_input)
     print("Finished downloading puzzle input")
 
+def code_file_path(day: int) -> Path:
+   return Path(__file__).parent / ".." / "days" / f"day{day:02}.py"
+
+def instruction_file_path(day:int) -> Path:
+   return Path(__file__).parent / ".." / ".." / "puzzles" / f"day{day:02}.md"
+
+def test_file_path(day: int) -> Path:
+    return Path(__file__).parent / ".." / ".." / "tests" / f"day{day:02}.txt"
 
 def setup_day(day: int):
     _scaffold(day)
