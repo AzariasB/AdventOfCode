@@ -22,13 +22,13 @@ class AocTestRunner:
         start_time = time.perf_counter()
         res = self.func(puzzle_input)
         end_time = time.perf_counter()
-        msg = f"Part {self.part}: {res}."
+        msg = f"Part {self.part}: {res}"
         if res == self.expected_value:
             msg +=  " Correct."
         else:
             msg += f" Expected {self.expected_value}."
 
-        msg += f" Time: {end_time - start_time:.2f}s"
+        msg += f" Time: {(end_time - start_time):.2f}s"
         print(msg)
 
 
