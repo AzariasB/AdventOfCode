@@ -31,10 +31,20 @@ def _scaffold(day: int):
     path.write_text(SCAFFOLD)
     print(f"Finished creating {path}")
 
+def _get_with_cookie(url: str, mandatory_cookie : bool = False) -> str:
+
+    if not (cookie := os.environ.get("ADVENT_OF_CODE_SESSION")):
+        print(f"Cannot download {url} without cookies")
+        if mandatory_cookie:
+            raise Exception("Cookie required")
+
+    return requests.get(url, cookies={"session": cookie}).text
+
+
 def _download_instructions(day: int):
     url = f"https://adventofcode.com/{YEAR}/day/{day}"
 
-    html_page = requests.get(url).text
+    html_page = _get_with_cookie(url)
 
     if not (match := MAIN_REG.search(html_page)):
         print(f"Failed to extract instructions from {url}.")
@@ -53,13 +63,8 @@ def _download_input(day: int):
     if path.exists():
         print("puzzle input already exists, skipping")
 
-
-    if not (cookie := os.environ.get("ADVENT_OF_CODE_SESSION")):
-        print("Cannot download input without cookies")
-        return
-
     url = f"https://adventofcode.com/{YEAR}/day/{day}/input"
-    puzzle_input = requests.get(url, cookies={"session": cookie}).text
+    puzzle_input = _get_with_cookie(url)
 
     path.write_text(puzzle_input)
     print("Finished downloading puzzle input")

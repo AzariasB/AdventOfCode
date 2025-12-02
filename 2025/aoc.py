@@ -7,7 +7,7 @@ from typer import Typer
 from advent_of_code.infra import setup_day
 from advent_of_code.infra import run_tests
 
-app = Typer()
+app = Typer(pretty_exceptions_enable=False)
 
 Day = Annotated[int, typer.Argument(default_factory=lambda: datetime.date.today().day)]
 
